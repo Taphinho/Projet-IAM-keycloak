@@ -1,0 +1,30 @@
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+
+# Fichiers Python générés et environnement virtuel
+__pycache__/
+*.pyc
+.venv/
+
+# Base locale Django
+*.sqlite3
+*.sqlite3-*
+
+# Configuration locale de l'éditeur
+.vscode/
+.idea/
+
+# Runtime, credentials, snapshots and local tooling
+certs/
+backups/
+dist/
+*.pem
+*.key
+*.p12
+*.dump
+*.tar.gz
+.agents/
+.codex/
+.aws/

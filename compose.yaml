@@ -1,0 +1,90 @@
+name: enterprise-iam-lab
+
+services:
+  postgres:
+    image: postgres:17.11-bookworm
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Mot de passe PostgreSQL manquant}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?Mot de passe Keycloak manquant}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:rx
+    networks:
+      - iam
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    mem_limit: 512m
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2
+    command: ["start-dev"]
+    environment:
+      KC_TRUSTSTORE_PATHS: /opt/keycloak/conf/truststores/ldap-ca.crt
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?Mot de passe Keycloak manquant}
+      KC_BOOTSTRAP_ADMIN_USERNAME: lab-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?Mot de passe administrateur Keycloak manquant}
+      KC_HOSTNAME: http://localhost:8080
+      JAVA_OPTS_KC_HEAP: "-Xms128m -Xmx768m"
+    volumes:
+      - ./certs/ldap/ca.crt:/opt/keycloak/conf/truststores/ldap-ca.crt:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - iam
+      - web
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 1536m
+  ldap:
+    image: enterprise-iam-openldap:lab
+    build:
+      context: ./ldap
+    environment:
+      LDAPTLS_CACERT: /tls/ca.crt
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:?Secret administrateur LDAP absent}
+      LDAP_BIND_PASSWORD: ${LDAP_BIND_PASSWORD:?Secret du compte technique absent}
+      LDAP_BOB_PASSWORD: ${LDAP_BOB_PASSWORD:?Secret de Bob absent}
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+      - ./certs/ldap/ca.crt:/tls/ca.crt:ro
+      - ./certs/ldap/server.crt:/tls/server.crt:ro
+      - ./certs/ldap/server.key:/tls/server.key:ro
+    networks:
+      - iam
+    mem_limit: 256m
+    cpus: 0.5
+    healthcheck:
+      test:
+        - CMD
+        - ldapwhoami
+        - -x
+        - -H
+        - ldaps://ldap:636
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+  ldap_data:
+  ldap_config:
+
+networks:
+  iam:
+    internal: true
+  web:
+    driver: bridge

@@ -1,0 +1,40 @@
+# Optional Linux-only profile: host networking preserves the localhost OIDC issuer.
+# Stop manually launched Django servers before starting these containers.
+services:
+  app-a:
+    build: .
+    image: enterprise-iam-django:lab
+    profiles: [apps]
+    network_mode: host
+    environment:
+      PROJECT_DIR: app
+      DJANGO_PORT: "8001"
+      DJANGO_DB_PATH: /data/db.sqlite3
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?}
+      OIDC_CLIENT_ID: django-app
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:?}
+      OIDC_DISCOVERY_URL: ${OIDC_DISCOVERY_URL:?}
+    volumes: [app_a_data:/data]
+    mem_limit: 256m
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+  app-b:
+    build: .
+    image: enterprise-iam-django:lab
+    profiles: [apps]
+    network_mode: host
+    environment:
+      PROJECT_DIR: app_b
+      DJANGO_PORT: "8002"
+      DJANGO_DB_PATH: /data/db.sqlite3
+      DJANGO_B_SECRET_KEY: ${DJANGO_B_SECRET_KEY:?}
+      OIDC_B_CLIENT_ID: portal-b
+      OIDC_B_CLIENT_SECRET: ${OIDC_B_CLIENT_SECRET:?}
+      OIDC_DISCOVERY_URL: ${OIDC_DISCOVERY_URL:?}
+    volumes: [app_b_data:/data]
+    mem_limit: 256m
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+volumes:
+  app_a_data:
+  app_b_data:

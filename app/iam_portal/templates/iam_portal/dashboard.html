@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Tableau de bord IAM</title>
+</head>
+<body>
+    <h1>Tableau de bord</h1>
+    <p>Accès authentifié autorisé.</p>
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Se déconnecter de Django et Keycloak</button>
+    </form>
+</body>
+</html>

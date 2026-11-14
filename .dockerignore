@@ -1,0 +1,11 @@
+*
+!requirements.txt
+!app/
+!app/**
+!app_b/
+!app_b/**
+!scripts/
+!scripts/start_django.sh
+**/*.sqlite3*
+**/__pycache__
+**/*.pyc

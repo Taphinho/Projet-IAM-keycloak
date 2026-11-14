@@ -1,0 +1,22 @@
+name: Validate lab
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  django-and-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements.txt
+      - run: python scripts/init_env.py
+      - run: PYTHON=python sh scripts/validate.sh
+      - run: docker compose -f compose.yaml -f compose.apps.yaml --profile apps config --quiet
+      - run: docker build -t enterprise-iam-openldap:lab ldap
+      - run: sh scripts/generate_ldap_tls.sh
+      - run: docker compose up -d --no-deps ldap
+      - run: sh scripts/test_ldap.sh
+      - if: always()
+        run: docker compose down --volumes

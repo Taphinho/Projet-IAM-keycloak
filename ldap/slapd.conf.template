@@ -1,0 +1,35 @@
+include /etc/ldap/schema/core.schema
+include /etc/ldap/schema/cosine.schema
+include /etc/ldap/schema/inetorgperson.schema
+
+pidfile /run/slapd/slapd.pid
+argsfile /run/slapd/slapd.args
+
+modulepath /usr/lib/ldap
+moduleload back_mdb
+
+threads 4
+
+database mdb
+maxsize 67108864
+suffix "dc=enterprise,dc=test"
+
+rootdn "cn=admin,dc=enterprise,dc=test"
+rootpw __LDAP_ADMIN_HASH__
+
+directory /var/lib/ldap
+
+index objectClass eq
+index uid eq
+
+access to attrs=userPassword
+    by anonymous auth
+    by * none
+
+access to dn.base=""
+    by * read
+
+access to *
+    by dn.exact="cn=keycloak,ou=services,dc=enterprise,dc=test" read
+    by self read
+    by * none

@@ -1,0 +1,4 @@
+dn: uid=bob,ou=people,dc=enterprise,dc=test
+changetype: modify
+replace: description
+description: Modification qui doit etre refusee
