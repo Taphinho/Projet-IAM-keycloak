@@ -98,12 +98,6 @@ Mesure utilisateur avant ajout LDAP : Keycloak ≈605 Mio, PostgreSQL ≈68 Mio.
 
 OIDC reste en HTTP local. Avant production : HTTPS sur toute la chaîne, serveur WSGI/ASGI adapté, secrets gérés hors variables Docker, mises à jour et images fixées par digest, MFA des administrateurs, récupération testée, audit, limitation des privilèges et tests de charge. Les sessions Django expirent après 15 minutes ; les rôles sont un instantané de connexion et leur révocation n’est pas immédiate. `DEBUG` est désactivé par défaut.
 
-## Présentation CV / entretien
-
-« Réalisation d’un laboratoire IAM Keycloak avec deux applications Django : intégration OIDC avec PKCE, démonstration SSO, MFA TOTP et contrôles RBAC testés. Développement des configurations de fédération OpenLDAP chiffrée et des procédures de sauvegarde/restauration. »
-
-Ne présenter la fédération et la restauration comme validées qu’après exécution de leur recette. Aucun déploiement PAM n’est revendiqué.
-
 ## Publication GitHub
 
 La livraison source est générée et auditée avec `python scripts/package_release.py`.
@@ -117,3 +111,4 @@ sh scripts/publish_github.sh Taphinho/Projet-IAM-keycloak
 
 Le script refuse un dépôt existant non vide, utilise une copie temporaire des
 sources auditées et n’écrit pas dans le dossier `.git` réservé de l’espace de travail.
+
