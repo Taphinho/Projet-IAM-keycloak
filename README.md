@@ -97,18 +97,3 @@ La CI effectue les contrôles Django, les tests, la validation Compose et la con
 Mesure utilisateur avant ajout LDAP : Keycloak ≈605 Mio, PostgreSQL ≈68 Mio. Limites : Keycloak 1,5 Gio, PostgreSQL 512 Mio, LDAP 256 Mio, Django conteneurisé 256 Mio par application. Ces limites ne sont pas des réservations ni des garanties sous charge.
 
 OIDC reste en HTTP local. Avant production : HTTPS sur toute la chaîne, serveur WSGI/ASGI adapté, secrets gérés hors variables Docker, mises à jour et images fixées par digest, MFA des administrateurs, récupération testée, audit, limitation des privilèges et tests de charge. Les sessions Django expirent après 15 minutes ; les rôles sont un instantané de connexion et leur révocation n’est pas immédiate. `DEBUG` est désactivé par défaut.
-
-## Publication GitHub
-
-La livraison source est générée et auditée avec `python scripts/package_release.py`.
-L’archive `dist/enterprise-iam-lab-source.zip` ne contient pas les secrets locaux.
-Pour publier sur un dépôt neuf après connexion GitHub CLI :
-
-```bash
-gh auth login -h github.com
-sh scripts/publish_github.sh Taphinho/Projet-IAM-keycloak
-```
-
-Le script refuse un dépôt existant non vide, utilise une copie temporaire des
-sources auditées et n’écrit pas dans le dossier `.git` réservé de l’espace de travail.
-
